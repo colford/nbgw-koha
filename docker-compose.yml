@@ -1,0 +1,77 @@
+################################################################################
+# National Botanic Garden of Wales 
+# Koha Library Docker Setup
+################################################################################
+version: '2'
+
+networks:
+    backend:
+        driver: bridge
+
+services:
+    koha:
+        container_name: koha
+        image: "digibib/koha:latest"
+        networks:
+            - backend
+        depends_on:
+            - koha_mysql
+            - koha_index
+        cap_add:
+            - SYS_NICE
+            - DAC_READ_SEARCH
+            - MKNOD
+        environment:
+            KOHA_ADMINPASS: "${KOHA_ADMINPASS}"
+            KOHA_ADMINUSER: "${KOHA_ADMINUSER}"
+            KOHA_INSTANCE: "${KOHA_INSTANCE}"
+            KOHA_DBHOST: koha_mysql
+        ports:
+            - "6001:6001"
+            - "8080:8080"
+            - "8081:8081"
+        volumes_from:
+            - koha_index
+            - koha_state
+    
+    koha_mysql:
+        container_name: koha_mysql
+        image: mysql:5.6.20
+        networks:
+            - backend
+        cap_add:
+            - MKNOD
+        command:
+            - mysqld
+            - "--datadir=/var/lib/mysql"
+            - "--user=mysql"
+            - "--max_allowed_packet=64M"
+            - "--wait_timeout=6000"
+            - "--bind_address=0.0.0.0"
+        environment:
+            MYSQL_DATABASE: "koha_${KOHA_INSTANCE}"
+            MYSQL_PASSWORD: "${KOHA_ADMINPASS}"
+            MYSQL_ROOT_PASSWORD: "${KOHA_ADMINPASS}"
+            MYSQL_USER: "${KOHA_ADMINUSER}"
+        ports:
+            - "3306:3306"
+        volumes_from:
+            - koha_mysql_data
+
+    koha_mysql_data:
+        container_name: koha_mysql_data
+        image: "busybox:latest"
+        volumes:
+            - /var/lib/mysql
+
+    koha_index:
+        container_name: koha_index
+        image: "busybox:latest"
+        volumes:
+            - /var/lib/koha/latest
+
+    koha_state:
+        container_name: koha_state
+        image: "busybox:latest"
+        volumes:
+            - /var/lib/koha_state
