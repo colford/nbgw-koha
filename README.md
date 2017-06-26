@@ -6,7 +6,7 @@ Koha instance creation on AWS
 * sudo apt-get install git
 * git clone https://github.com/colford/nbgw-koha.git
 * sudo apt-get install apt-transport-https ca-certificates
-* sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+* sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 * sudo vi /etc/apt/sources.list.d/docker.list
 
   deb https://apt.dockerproject.org/repo ubuntu-trusty main 
